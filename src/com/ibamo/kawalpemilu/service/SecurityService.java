@@ -9,19 +9,25 @@ import com.ibamo.kawalpemilu.model.kawalpemilu.BallotBoxUserInput;
 
 public class SecurityService {
 
-	private static Logger LOG = Logger.getLogger(SecurityService.class
-			.getName());
-
-	private static final int NONCE_BYTE_LENGTH = 32;
-	private static final int USER_ID_BYTE_LENGTH = 32;
-	private static final char NONCE_PERSISTENCE_KEY_SEPARATOR = '-';
-
 	private static class SingletonHolder {
 		private static final SecurityService INSTANCE = new SecurityService();
 	}
 
+	private static Logger LOG = Logger.getLogger(SecurityService.class
+			.getName());
+	private static final int NONCE_BYTE_LENGTH = 32;
+	private static final int USER_ID_BYTE_LENGTH = 32;
+
+	private static final char NONCE_PERSISTENCE_KEY_SEPARATOR = '-';
+
 	public static SecurityService getInstance() {
 		return SingletonHolder.INSTANCE;
+	}
+
+	private String composeKey(final String ballotId, final String userId) {
+		return new StringBuilder(userId)
+				.append(NONCE_PERSISTENCE_KEY_SEPARATOR).append(ballotId)
+				.toString();
 	}
 
 	public String generateNonceForResult(final BallotBoxResult result,
@@ -38,12 +44,6 @@ public class SecurityService {
 		ThreadLocalRandom.current().nextBytes(nonceBytes);
 
 		return BaseEncoding.base64Url().encode(nonceBytes);
-	}
-
-	private String composeKey(final String ballotId, final String userId) {
-		return new StringBuilder(userId)
-				.append(NONCE_PERSISTENCE_KEY_SEPARATOR).append(ballotId)
-				.toString();
 	}
 
 	public String generateUserId() {

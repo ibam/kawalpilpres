@@ -55,10 +55,6 @@ public class PersistedRegion {
 		this.numberOfVotingStations = numberOfVotingStations;
 	}
 
-	public void setNumberOfVotingStations(Integer numberOfVotingStations) {
-		this.numberOfVotingStations = numberOfVotingStations;
-	}
-
 	public void addSubregion(final PersistedRegion subregion) {
 		subregions.add(Ref.create(subregion));
 		cachedSubregions.add(subregion);
@@ -109,6 +105,10 @@ public class PersistedRegion {
 	 */
 	public boolean hasMissingSubregions() {
 		return getSubregions().isEmpty() && getLevel() != RegionLevel.VILLAGE;
+	}
+
+	public void setNumberOfVotingStations(Integer numberOfVotingStations) {
+		this.numberOfVotingStations = numberOfVotingStations;
 	}
 
 	public String toString() {

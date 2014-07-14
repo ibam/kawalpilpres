@@ -93,6 +93,10 @@ public class BallotService implements BallotAccessor {
 		}
 	}
 
+	public Collection<BallotBoxPersistedTally> getAllTallies() {
+		return BallotAccessService.getInstance().getAllTallies();
+	}
+
 	private byte[] getBallotBoxIdEncryptionKey() {
 		return ballotBoxIdEncryptionKey;
 	}
@@ -108,6 +112,20 @@ public class BallotService implements BallotAccessor {
 				votingStationNumber);
 
 		return result;
+	}
+
+	public GlobalBallotStats getGlobalBallotStats() {
+		final GlobalBallotStats ballotStats = new GlobalBallotStats();
+		ballotStats.setTotalProcessedCount(getTotalProcessedCount());
+
+		ballotStats
+				.setTotalSuspectedNegativeCount(getTotalSuspectedNegativeCount());
+
+		ballotStats
+				.setTotalVerifiedNegativeCount(getTotalVerifiedNegativeCount());
+
+		return ballotStats;
+
 	}
 
 	private int getNumberOfVotingStation(final Region region) {
@@ -168,6 +186,24 @@ public class BallotService implements BallotAccessor {
 		return RegionAccessService.getInstance().getSubregions(region);
 	}
 
+	public BallotBoxPersistedTally getTally(final String ballotId) {
+		return BallotAccessService.getInstance().getTally(ballotId);
+	}
+
+	private int getTotalProcessedCount() {
+		return ofy().load().type(BallotBoxPersistedTally.class).count();
+	}
+
+	private int getTotalSuspectedNegativeCount() {
+		return ofy().load().type(BallotBoxPersistedTally.class)
+				.filter("numberOfNegativeAdvices >", 0).count();
+	}
+
+	private int getTotalVerifiedNegativeCount() {
+		return ofy().load().type(BallotBoxPersistedTally.class)
+				.filter("numberOfNegativeAdvices >=", 2).count();
+	}
+
 	private boolean mergeUserInputToTally(final String userId,
 			final BallotBoxUserInput input, final BallotBoxPersistedTally tally) {
 		if (tally.containsUserAdvice(userId, input.getAdviceType())) {
@@ -216,41 +252,5 @@ public class BallotService implements BallotAccessor {
 		// // get list of already processed forms, can be either good or bad
 		// ObjectifyService.ofy().load().type(BallotBoxAdvice.class).filter("numberOfAdvices >=",
 		// 3).keys().list();
-	}
-
-	public BallotBoxPersistedTally getTally(final String ballotId) {
-		return BallotAccessService.getInstance().getTally(ballotId);
-	}
-
-	public Collection<BallotBoxPersistedTally> getAllTallies() {
-		return BallotAccessService.getInstance().getAllTallies();
-	}
-
-	public GlobalBallotStats getGlobalBallotStats() {
-		final GlobalBallotStats ballotStats = new GlobalBallotStats();
-		ballotStats.setTotalProcessedCount(getTotalProcessedCount());
-
-		ballotStats
-				.setTotalSuspectedNegativeCount(getTotalSuspectedNegativeCount());
-
-		ballotStats
-				.setTotalVerifiedNegativeCount(getTotalVerifiedNegativeCount());
-
-		return ballotStats;
-
-	}
-
-	private int getTotalSuspectedNegativeCount() {
-		return ofy().load().type(BallotBoxPersistedTally.class)
-				.filter("numberOfNegativeAdvices >", 0).count();
-	}
-
-	private int getTotalVerifiedNegativeCount() {
-		return ofy().load().type(BallotBoxPersistedTally.class)
-				.filter("numberOfNegativeAdvices >=", 2).count();
-	}
-
-	private int getTotalProcessedCount() {
-		return ofy().load().type(BallotBoxPersistedTally.class).count();
 	}
 }

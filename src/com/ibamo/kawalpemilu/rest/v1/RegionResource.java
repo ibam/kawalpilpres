@@ -18,11 +18,6 @@ public class RegionResource {
 	private static Logger LOG = Logger
 			.getLogger(RegionResource.class.getName());
 
-	private boolean hasAccessRights() {
-		return UserServiceFactory.getUserService().isUserLoggedIn()
-				&& UserServiceFactory.getUserService().isUserAdmin();
-	}
-
 	@GET
 	@Path("/{regionId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -36,5 +31,10 @@ public class RegionResource {
 		}
 
 		return RegionDatastoreAccessService.getInstance().load(regionId);
+	}
+
+	private boolean hasAccessRights() {
+		return UserServiceFactory.getUserService().isUserLoggedIn()
+				&& UserServiceFactory.getUserService().isUserAdmin();
 	}
 }

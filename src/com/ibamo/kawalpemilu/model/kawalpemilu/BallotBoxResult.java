@@ -3,7 +3,6 @@ package com.ibamo.kawalpemilu.model.kawalpemilu;
 import com.ibamo.kawalpemilu.model.kpu.Region;
 
 public class BallotBoxResult {
-	// http://scanc1.kpu.go.id/viewp.php?f=008954400104.jpg
 	private static final String imageUrlTemplate = "http://scanc1.kpu.go.id/viewp.php?f=";
 	private static final char idSeparator = '-';
 
@@ -20,10 +19,6 @@ public class BallotBoxResult {
 		this.votingStationNumber = votingStationNumber;
 		setId(new StringBuilder(regionId).append(idSeparator)
 				.append(votingStationNumber).toString());
-	}
-
-	public void setId(final String id) {
-		this.id = id;
 	}
 
 	public String getId() {
@@ -60,6 +55,10 @@ public class BallotBoxResult {
 
 	public int getVotingStationNumber() {
 		return votingStationNumber;
+	}
+
+	public void setId(final String id) {
+		this.id = id;
 	}
 
 	public void setNonce(final String nonce) {

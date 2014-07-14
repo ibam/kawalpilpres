@@ -8,12 +8,20 @@ public class GlobalBallotStats {
 	public GlobalBallotStats() {
 	}
 
-	public void setTotalProcessedCount(final int totalProcessedCount) {
-		this.totalProcessedCount = totalProcessedCount;
-	}
-
 	public int getTotalProcessedCount() {
 		return totalProcessedCount;
+	}
+
+	public int getTotalSuspectedNegativeCount() {
+		return totalSuspectedNegativeCount;
+	}
+
+	public int getTotalVerifiedNegativeCount() {
+		return totalVerifiedNegativeCount;
+	}
+
+	public void setTotalProcessedCount(final int totalProcessedCount) {
+		this.totalProcessedCount = totalProcessedCount;
 	}
 
 	public void setTotalSuspectedNegativeCount(
@@ -21,16 +29,8 @@ public class GlobalBallotStats {
 		this.totalSuspectedNegativeCount = totalSuspectedNegativeCount;
 	}
 
-	public int getTotalSuspectedNegativeCount() {
-		return totalSuspectedNegativeCount;
-	}
-
 	public void setTotalVerifiedNegativeCount(
 			final int totalVerifiedNegativeCount) {
 		this.totalVerifiedNegativeCount = totalVerifiedNegativeCount;
-	}
-
-	public int getTotalVerifiedNegativeCount() {
-		return totalVerifiedNegativeCount;
 	}
 }

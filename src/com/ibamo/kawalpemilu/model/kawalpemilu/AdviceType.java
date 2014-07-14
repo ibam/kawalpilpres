@@ -11,7 +11,17 @@ public enum AdviceType {
 	UNKNOWN("Unknown-ShouldNeverShowUp", -1),
 	;
 	
+	public static AdviceType getAdviceType(final String adviceString) {
+		for (AdviceType adviceType : values()) {
+			if (adviceType.adviceString.equals(adviceString)) {
+				return adviceType;
+			}
+		}
+		
+		return UNKNOWN;
+	}
 	private final String adviceString;
+	
 	private final int persistenceCode;
 	
 	private AdviceType(final String adviceString, final int persistenceCode) {
@@ -21,15 +31,5 @@ public enum AdviceType {
 	
 	public int getPersistenceCode() {
 		return persistenceCode;
-	}
-	
-	public static AdviceType getAdviceType(final String adviceString) {
-		for (AdviceType adviceType : values()) {
-			if (adviceType.adviceString.equals(adviceString)) {
-				return adviceType;
-			}
-		}
-		
-		return UNKNOWN;
 	}
 }

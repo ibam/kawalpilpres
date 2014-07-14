@@ -22,9 +22,6 @@ public class NetworkService {
 		private static final NetworkService INSTANCE = new NetworkService();
 	}
 
-	// private static Logger LOG = Logger.getLogger(NetworkService.class
-	// .getSimpleName());
-
 	public static NetworkService getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
@@ -35,10 +32,6 @@ public class NetworkService {
 		networkObjectMapper = buildObjectMapper();
 	}
 
-	private ObjectMapper getNetworkObjectMapper() {
-		return networkObjectMapper;
-	}
-
 	private ObjectMapper buildObjectMapper() {
 		ObjectMapper constructedMapper = new ObjectMapper();
 		constructedMapper.configure(
@@ -47,17 +40,24 @@ public class NetworkService {
 		return constructedMapper;
 	}
 
+	public String fetchRawUrl(final URL url) {
+		try (InputStreamReader reader = new InputStreamReader(url.openStream(),
+				Charsets.UTF_8)) {
+			return CharStreams.toString(reader);
+		} catch (IOException ex) {
+			throw new RemoteServiceException(ex);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> T fetchUrlFor(final URL url, Class<T> beanClass) {
 		return (T) fetchUrlForPOJOBean(url, beanClass);
-		// try {
-		// return getNetworkObjectMapper().readValue(fetchUrl.openStream(),
-		// beanClass);
-		// } catch (JsonParseException | JsonMappingException ex) {
-		// throw new ResponseClassMismatchException(ex, beanClass);
-		// } catch (IOException ex) {
-		// throw new RemoteServiceException(ex);
-		// }
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> List<T> fetchUrlForList(final URL url,
+			TypeReference<List<T>> beanTypeReference) {
+		return (List<T>) fetchUrlForPOJOBean(url, beanTypeReference);
 	}
 
 	private Object fetchUrlForPOJOBean(final URL url,
@@ -94,29 +94,7 @@ public class NetworkService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> List<T> fetchUrlForList(final URL url,
-			TypeReference<List<T>> beanTypeReference) {
-		return (List<T>) fetchUrlForPOJOBean(url, beanTypeReference);
-		// try {
-		// return getNetworkObjectMapper().readValue(fetchUrl.openStream(),
-		// beanTypeReference);
-		// } catch (JsonParseException | JsonMappingException ex) {
-		// ex.printStackTrace();
-		// throw new ResponseClassMismatchException(
-		// beanTypeReference.getClass());
-		// } catch (IOException ex) {
-		// ex.printStackTrace();
-		// throw new RemoteServiceException();
-		// }
-	}
-
-	public String fetchRawUrl(final URL url) {
-		try (InputStreamReader reader = new InputStreamReader(url.openStream(),
-				Charsets.UTF_8)) {
-			return CharStreams.toString(reader);
-		} catch (IOException ex) {
-			throw new RemoteServiceException(ex);
-		}
+	private ObjectMapper getNetworkObjectMapper() {
+		return networkObjectMapper;
 	}
 }

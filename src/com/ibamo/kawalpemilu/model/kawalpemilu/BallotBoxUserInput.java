@@ -8,21 +8,12 @@ public class BallotBoxUserInput {
 	private String advice;
 	private String id;
 	
-	public void setNonce(final String nonce) {
-		this.nonce = nonce;
+	public String getAdvice() {
+		return advice;
 	}
 
-	public void setAdvice(final String advice) {
-		this.advice = advice;
-	}
-	
 	public AdviceType getAdviceType() {
 		return AdviceType.getAdviceType(getAdvice());
-	}
-
-	@JsonIgnore
-	public void setId(final String id) {
-		this.id = id;
 	}
 	
 	@JsonIgnore
@@ -33,9 +24,18 @@ public class BallotBoxUserInput {
 	public String getNonce() {
 		return nonce;
 	}
+	
+	public void setAdvice(final String advice) {
+		this.advice = advice;
+	}
 
-	public String getAdvice() {
-		return advice;
+	@JsonIgnore
+	public void setId(final String id) {
+		this.id = id;
+	}
+
+	public void setNonce(final String nonce) {
+		this.nonce = nonce;
 	}
 
 	public String toString() {

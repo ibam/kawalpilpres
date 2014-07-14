@@ -18,10 +18,6 @@ public class RegionCacheLoader extends CacheLoader<Region, PersistedRegion> {
 	private static Logger LOG = Logger.getLogger(RegionCacheLoader.class
 			.getSimpleName());
 
-	// private String computeRegionCacheKey(final String regionId) {
-	// return regionId;
-	// }
-
 	private List<Region> fetchSubregionsFromKPU(final String regionId) {
 		final URL regionFetchUrl = RegionAccessService.getInstance()
 				.constructRegionFetchUrl(regionId);
@@ -45,27 +41,6 @@ public class RegionCacheLoader extends CacheLoader<Region, PersistedRegion> {
 		}
 
 	}
-
-	// @SuppressWarnings("unchecked")
-	// private List<Region> getSubregionsFromMemcache(final String regionId) {
-	// Object memcachedValue = MemcacheServiceFactory.getMemcacheService()
-	// .get(computeRegionCacheKey(regionId));
-	//
-	// if (!(memcachedValue instanceof List)) {
-	// return null;
-	// }
-	//
-	// List<?> memcachedCollection = (List<?>) memcachedValue;
-	// if (memcachedCollection.isEmpty()) {
-	// return Collections.emptyList();
-	// }
-	//
-	// if (!(memcachedCollection.iterator().next() instanceof Region)) {
-	// return null;
-	// }
-	//
-	// return (List<Region>) memcachedCollection;
-	// }
 
 	@Override
 	public PersistedRegion load(final Region region) throws Exception {
@@ -112,12 +87,6 @@ public class RegionCacheLoader extends CacheLoader<Region, PersistedRegion> {
 			// store the persistedSubregions
 			RegionDatastoreAccessService.getInstance()
 					.save(persistedSubregions);
-
-			// // reload the persistedRegion so that the subregions will be
-			// // populated with the correct refs
-			// persistedRegion =
-			// RegionDatastoreAccessService.getInstance().load(
-			// region.getId());
 		}
 
 		LOG.finer("Persisted subregion of persisted region " + persistedRegion
@@ -125,81 +94,5 @@ public class RegionCacheLoader extends CacheLoader<Region, PersistedRegion> {
 				+ persistedRegion.getSubregions());
 
 		return persistedRegion;
-
-		// else if (persistedRegion.getSubregions().isEmpty()
-		// && persistedRegion.getLevel() != RegionLevel.VILLAGE) {
-		// // region should have subregions:
-		// // 1. load the subregions from KPU
-		// // 2. convert region to persistedregion
-		// // 2. add subregions to persistedregion
-		// // 3. convert the subregions to persistedregions
-		// // 3. persist the persistedregion
-		// // 4. persist the persistedsubregions
-		// }
-
-		// final Set<String> storedSubregionIds = RegionDatastoreAccessService
-		// .getInstance().loadSubregionIds(regionId);
-		//
-		// // if we cannot find any subregions from the datastore..
-		// if (storedSubregionIds.isEmpty()) {
-		// // ..fetch them from KPU..
-		// final List<Region> kpuSubregions = fetchSubregionsFromKPU(regionId);
-		//
-		// // ..convert them to PersistedRegions..
-		// final Collection<PersistedRegion> persistedRegions =
-		// RegionDatastoreAccessService
-		// .getInstance().toPersistedRegions(kpuSubregions);
-		//
-		// // ..persist them in the datastore..
-		// RegionDatastoreAccessService.getInstance().save(persistedRegions);
-		//
-		// // ..and finally, convert them to the subregion ids.
-		// return Lists.newArrayList(toRegionIds(kpuSubregions));
-		// } else {
-		// return Lists.newArrayList(storedSubregionIds);
-		// }
-
-		// List<Region> memcachedRegion = RegionMemcacheService.getInstance()
-		// .getSubregionsFromMemcache(regionId);
-		//
-		// if (memcachedRegion != null) {
-		// return memcachedRegion;
-		// }
-		//
-		// // memcache miss, fetch from KPU
-		// List<Region> kpuSubRegions = fetchSubregionsFromKPU(regionId);
-		// if (kpuSubRegions != null) {
-		// RegionMemcacheService.getInstance().putSubregionsToMemcache(
-		// regionId, kpuSubRegions);
-		// return kpuSubRegions;
-		// }
-		//
-		// throw new RegionNotFoundException(regionId);
 	}
-
-	// private Collection<PersistedRegion> toPersistedRegions(
-	// final Collection<Region> regions) {
-	// final Collection<PersistedRegion> persistedRegions = new ArrayList<>();
-	// for (Region region : regions) {
-	// persistedRegions.add(toPersistedRegion(region));
-	// }
-	//
-	// return persistedRegions;
-	// }
-	//
-	// private PersistedRegion toPersistedRegion(final Region region) {
-	// final PersistedRegion persistedRegion = new PersistedRegion(
-	// region.getId(), region.getParent(), region.getName(),
-	// region.getLevel(), region.getNumberOfVotingStations());
-	//
-	// return persistedRegion;
-	// }
-
-	// private Set<String> toRegionIds(final List<Region> regions) {
-	// final Set<String> regionIds = new HashSet<>();
-	// for (Region region : regions) {
-	// regionIds.add(region.getId());
-	// }
-	// return regionIds;
-	// }
 }

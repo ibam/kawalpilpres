@@ -30,23 +30,6 @@ public class BallotBoxPersistedAdvice {
 		this.adviceTypeCode = adviceType.getPersistenceCode();
 	}
 
-	public String getAdvisorUserId() {
-		return advisorUserId;
-	}
-
-	public int getAdviceTypeCode() {
-		return adviceTypeCode;
-	}
-
-	public String getCustomAdvice() {
-		return customAdvice;
-	}
-
-	@JsonIgnore
-	public BallotBoxPersistedTally getParentTally() {
-		return containerTally;
-	}
-
 	@Override
 	public boolean equals(final Object compared) {
 		if (!(compared instanceof BallotBoxPersistedAdvice)) {
@@ -58,6 +41,23 @@ public class BallotBoxPersistedAdvice {
 				&& Objects
 						.equals(adviceTypeCode, comparedAdvice.adviceTypeCode)
 				&& Objects.equals(customAdvice, comparedAdvice.customAdvice);
+	}
+
+	public int getAdviceTypeCode() {
+		return adviceTypeCode;
+	}
+
+	public String getAdvisorUserId() {
+		return advisorUserId;
+	}
+
+	public String getCustomAdvice() {
+		return customAdvice;
+	}
+
+	@JsonIgnore
+	public BallotBoxPersistedTally getParentTally() {
+		return containerTally;
 	}
 
 	@Override

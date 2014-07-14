@@ -27,7 +27,6 @@ public class RegionAccessService {
 
 	private static final String GET_REGION_URL_TEMPLATE = "http://dapil.kpu.go.id/api.php?cmd=browse_wilayah&wilayah_id=";
 
-	// http://pilpres2014.kpu.go.id/c1.php?cmd=select&parent=35753
 	private static final String TPS_COUNT_SCRAPING_URL_TEMPLATE = "http://pilpres2014.kpu.go.id/c1.php?cmd=select&parent=";
 
 	private static final String TPS_SIGNAL_STRING = "class=\"image1_";
@@ -104,7 +103,6 @@ public class RegionAccessService {
 		if (occurences == 0) {
 			LOG.warning("Cannot count signal \"" + TPS_SIGNAL_STRING
 					+ "\" on scraped page " + rawScrapedPage);
-			// throw new InvalidNumberOfVotingStationsException(region.getId());
 			return -1; // no photo has been uploaded yet
 		} else {
 			LOG.finer("Found " + occurences + " TPS from raw scraped page "
@@ -137,7 +135,6 @@ public class RegionAccessService {
 		updateNumberOfVotingStations(region);
 
 		if (!region.hasNumberOfVotingStations()) {
-			// throw new InvalidNumberOfVotingStationsException(region.getId());
 			return -1; // No TPS data yet.
 		}
 
@@ -181,9 +178,6 @@ public class RegionAccessService {
 					.setNumberOfVotingStations(kpuNumberOfVotingStations);
 
 			RegionDatastoreAccessService.getInstance().save(persistedRegion);
-
-			// RegionMemcacheService.getInstance().updateRegion(
-			// region);
 		}
 	}
 }

@@ -37,11 +37,9 @@ public enum Province {
 	PAPUA ("78203"),
 	PAPUA_BARAT ("81877"), ;
 
-	//private String provincialCode;
 	private Region region;
 
 	private Province(final String provincialCode) {
-		//this.provincialCode = provincialCode;
 		region = new Region();
 		region.setId(provincialCode);
 		region.setLevel(RegionLevel.PROVINCE);

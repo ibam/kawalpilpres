@@ -11,16 +11,6 @@ public class PersistenceService {
 		return SingletonHolder.INSTANCE;
 	}
 
-	public void put(final String persistenceKey, final Object persistedValue) {
-		putToMemcache(persistenceKey, persistedValue);
-	}
-
-	private void putToMemcache(final String persistenceKey,
-			final Object persistedValue) {
-		MemcacheServiceFactory.getAsyncMemcacheService().put(persistenceKey,
-				persistedValue);
-	}
-
 	public String getString(final String persistenceKey) {
 		final Object memcacheValue = MemcacheServiceFactory
 				.getMemcacheService().get(persistenceKey);
@@ -30,5 +20,15 @@ public class PersistenceService {
 		}
 
 		return null;
+	}
+
+	public void put(final String persistenceKey, final Object persistedValue) {
+		putToMemcache(persistenceKey, persistedValue);
+	}
+
+	private void putToMemcache(final String persistenceKey,
+			final Object persistedValue) {
+		MemcacheServiceFactory.getAsyncMemcacheService().put(persistenceKey,
+				persistedValue);
 	}
 }

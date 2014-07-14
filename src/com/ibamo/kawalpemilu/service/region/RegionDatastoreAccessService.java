@@ -33,16 +33,12 @@ public class RegionDatastoreAccessService {
 		ofy().save().entities(persistedRegions);
 	}
 
-	public void saveNow(final Collection<PersistedRegion> persistedRegions) {
-		ofy().save().entities(persistedRegions).now();
-	}
-
-	// public Set<String> loadSubregionIds(final String regionId) {
-	// return load(regionId).getSubregions();
-	// }
-
 	public void save(final PersistedRegion region) {
 		ofy().save().entity(region);
+	}
+
+	public void saveNow(final Collection<PersistedRegion> persistedRegions) {
+		ofy().save().entities(persistedRegions).now();
 	}
 
 	public void saveNow(final PersistedRegion region) {

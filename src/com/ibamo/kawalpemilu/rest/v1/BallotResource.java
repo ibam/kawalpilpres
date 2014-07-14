@@ -38,13 +38,32 @@ public class BallotResource implements BallotAccessor {
 	@Context
 	private HttpServletResponse contextResponse;
 
-	@GET
-	@Path("/stats")
-	@Produces(MediaType.APPLICATION_JSON)
-	public GlobalBallotStats getGlobalBallotStats() {
-		return BallotService.getInstance().getGlobalBallotStats();
+	private String ensureUserIdExist(final HttpServletRequest request,
+			final HttpServletResponse response) {
+		String cookieUserId = extractUserId(request);
+		if (cookieUserId == null) {
+			cookieUserId = SecurityService.getInstance().generateUserId();
+			setUserIdToCookieResponse(cookieUserId, response);
+		}
+
+		return cookieUserId;
 	}
 	
+	private String extractUserId(final HttpServletRequest httpRequest) {
+		Cookie[] requestCookies = httpRequest.getCookies();
+		if (requestCookies == null) {
+			return null;
+		}
+
+		for (Cookie cookie : httpRequest.getCookies()) {
+			if (cookie.getName().equals(USER_ID_COOKIE_NAME)) {
+				return cookie.getValue();
+			}
+		}
+
+		return null;
+	}
+
 	@GET
 	@Path("/tallies")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -74,9 +93,11 @@ public class BallotResource implements BallotAccessor {
 		return BallotService.getInstance().getTally(ballotId);
 	}
 
-	private boolean hasAccessRights() {
-		return UserServiceFactory.getUserService().isUserLoggedIn()
-				&& UserServiceFactory.getUserService().isUserAdmin();
+	@GET
+	@Path("/stats")
+	@Produces(MediaType.APPLICATION_JSON)
+	public GlobalBallotStats getGlobalBallotStats() {
+		return BallotService.getInstance().getGlobalBallotStats();
 	}
 
 	@GET
@@ -95,6 +116,16 @@ public class BallotResource implements BallotAccessor {
 		BallotService.getInstance().encryptBallotId(result);
 
 		return result;
+	}
+
+	private boolean hasAccessRights() {
+		return UserServiceFactory.getUserService().isUserLoggedIn()
+				&& UserServiceFactory.getUserService().isUserAdmin();
+	}
+
+	private void setUserIdToCookieResponse(final String cookieUserId,
+			final HttpServletResponse response) {
+		response.addCookie(new Cookie(USER_ID_COOKIE_NAME, cookieUserId));
 	}
 
 	@POST
@@ -134,36 +165,5 @@ public class BallotResource implements BallotAccessor {
 		BallotService.getInstance().processAdviceFromUser(advice, userId);
 
 		return Response.noContent().build();
-	}
-
-	private String ensureUserIdExist(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		String cookieUserId = extractUserId(request);
-		if (cookieUserId == null) {
-			cookieUserId = SecurityService.getInstance().generateUserId();
-			setUserIdToCookieResponse(cookieUserId, response);
-		}
-
-		return cookieUserId;
-	}
-
-	private void setUserIdToCookieResponse(final String cookieUserId,
-			final HttpServletResponse response) {
-		response.addCookie(new Cookie(USER_ID_COOKIE_NAME, cookieUserId));
-	}
-
-	private String extractUserId(final HttpServletRequest httpRequest) {
-		Cookie[] requestCookies = httpRequest.getCookies();
-		if (requestCookies == null) {
-			return null;
-		}
-
-		for (Cookie cookie : httpRequest.getCookies()) {
-			if (cookie.getName().equals(USER_ID_COOKIE_NAME)) {
-				return cookie.getValue();
-			}
-		}
-
-		return null;
 	}
 }

@@ -37,32 +37,10 @@ public class BallotBoxPersistedTally {
 		this.ballotId = ballotId;
 	}
 
-	public String getId() {
-		return ballotId;
-	}
-
-	public int getNumberOfAdvices() {
-		return numberOfAdvices;
-	}
-
-	public int getNumberOfPositiveAdvices() {
-		return numberOfPositiveAdvices;
-	}
-
-	public int getNumberOfNegativeAdvices() {
-		return numberOfNegativeAdvices;
-	}
-
-	public int getAdviceKarmaBalance() {
-		return adviceKarmaBalance;
-	}
-
-	public Set<BallotBoxPersistedAdvice> getAdvices() {
-		return advices;
-	}
-
-	public boolean hasAdvices() {
-		return !getAdvices().isEmpty();
+	public void addAdvice(
+			final BallotBoxPersistedAdvice ballotBoxPersistedAdvice) {
+		getAdvices().add(ballotBoxPersistedAdvice);
+		syncAdviceNumbers();
 	}
 
 	public boolean containsUserAdvice(final String userId,
@@ -79,10 +57,32 @@ public class BallotBoxPersistedTally {
 		return false;
 	}
 
-	public void addAdvice(
-			final BallotBoxPersistedAdvice ballotBoxPersistedAdvice) {
-		getAdvices().add(ballotBoxPersistedAdvice);
-		syncAdviceNumbers();
+	public int getAdviceKarmaBalance() {
+		return adviceKarmaBalance;
+	}
+
+	public Set<BallotBoxPersistedAdvice> getAdvices() {
+		return advices;
+	}
+
+	public String getId() {
+		return ballotId;
+	}
+
+	public int getNumberOfAdvices() {
+		return numberOfAdvices;
+	}
+
+	public int getNumberOfNegativeAdvices() {
+		return numberOfNegativeAdvices;
+	}
+
+	public int getNumberOfPositiveAdvices() {
+		return numberOfPositiveAdvices;
+	}
+
+	public boolean hasAdvices() {
+		return !getAdvices().isEmpty();
 	}
 
 	private void syncAdviceNumbers() {
