@@ -3,6 +3,7 @@ package com.ibamo.kawalpemilu.service.ballot;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -164,7 +165,8 @@ public class BallotService implements BallotAccessor {
 			final RegionLevel regionLevel) {
 		final List<Region> subregions = getSubregions(region);
 
-		LOG.finer("Found subregions for region " + region + " are " + subregions);
+		LOG.finer("Found subregions for region " + region + " are "
+				+ subregions);
 
 		final int sampledSubregionIndex = ThreadLocalRandom.current().nextInt(
 				subregions.size());
@@ -196,12 +198,12 @@ public class BallotService implements BallotAccessor {
 
 	private int getTotalSuspectedNegativeCount() {
 		return ofy().load().type(BallotBoxPersistedTally.class)
-				.filter("numberOfNegativeAdvices >", 0).count();
+				.filter("adviceKarmaBalance <", 0).count();
 	}
 
 	private int getTotalVerifiedNegativeCount() {
 		return ofy().load().type(BallotBoxPersistedTally.class)
-				.filter("numberOfNegativeAdvices >=", 2).count();
+				.filter("adviceKarmaBalance <", -2).count();
 	}
 
 	private boolean mergeUserInputToTally(final String userId,
@@ -236,21 +238,19 @@ public class BallotService implements BallotAccessor {
 		if (isChanged) {
 			BallotAccessService.getInstance().storeTally(tally);
 		}
+	}
 
-		// // Processing valid advice LooksGood for ballot 26051-5.
-		// LOG.info("Processing valid advice " + advice.getAdvice()
-		// + " for ballot " + advice.getId() + ".");
-		//
-		// // get list of forms that are suspected to be bad
-		// ObjectifyService.ofy().load().type(BallotBoxAdvice.class).filter("numberOfBadAdvices >=",
-		// 3).keys().list();
-		//
-		// // get list of forms that are confirmed to be good
-		// ObjectifyService.ofy().load().type(BallotBoxAdvice.class).filter("numberOfGoodAdvices >=",
-		// 3).keys().list();
-		//
-		// // get list of already processed forms, can be either good or bad
-		// ObjectifyService.ofy().load().type(BallotBoxAdvice.class).filter("numberOfAdvices >=",
-		// 3).keys().list();
+	public void convertTalliesToKarma() {
+		Collection<BallotBoxPersistedTally> allTallies = BallotAccessService
+				.getInstance().getAllTallies();
+
+		for (BallotBoxPersistedTally tally : allTallies) {
+			if (tally.getAdviceKarmaBalance() == 0) {
+				tally.syncAdviceNumbers();
+				BallotAccessService.getInstance().storeTally(tally);
+
+				LOG.info("Fixing karma for tally #" + tally.getId());
+			}
+		}
 	}
 }

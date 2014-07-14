@@ -92,6 +92,12 @@ public class BallotResource implements BallotAccessor {
 
 		return BallotService.getInstance().getTally(ballotId);
 	}
+	
+//	@GET
+//	@Path("/convert")
+//	public void convertTallies() {
+//		BallotService.getInstance().convertTalliesToKarma();
+//	}
 
 	@GET
 	@Path("/stats")

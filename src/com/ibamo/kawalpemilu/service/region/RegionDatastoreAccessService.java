@@ -73,7 +73,11 @@ public class RegionDatastoreAccessService {
 		region.setNumberOfVotingStation(persistedRegion
 				.getNumberOfVotingStations());
 
-		region.setParent(persistedRegion.getParent().getId());
+		if (persistedRegion.getParent() == null) {
+			region.setParent(null);
+		} else {
+			region.setParent(persistedRegion.getParent().getId());
+		}
 
 		return region;
 	}

@@ -85,7 +85,7 @@ public class BallotBoxPersistedTally {
 		return !getAdvices().isEmpty();
 	}
 
-	private void syncAdviceNumbers() {
+	public void syncAdviceNumbers() {
 		numberOfAdvices = getAdvices().size();
 		numberOfPositiveAdvices = 0;
 		numberOfNegativeAdvices = 0;

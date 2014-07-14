@@ -12,7 +12,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.ibamo.kawalpemilu.model.kpu.PersistedRegion;
 import com.ibamo.kawalpemilu.service.region.RegionDatastoreAccessService;
 
-@Path("/regions")
+@Path("/stats")
 public class RegionResource {
 
 	private static Logger LOG = Logger
