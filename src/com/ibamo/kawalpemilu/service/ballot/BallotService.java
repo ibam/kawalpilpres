@@ -40,11 +40,15 @@ public class BallotService {
 
 	private static Logger LOG = Logger.getLogger(BallotService.class.getName());
 
+	private static final int MAX_REROLL = 3;
+
 	public static BallotService getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
 
 	private final byte[] ballotBoxIdEncryptionKey;
+
+	private static final double REVERIFY_CHANCE_PERCENTAGE = 20;
 
 	private BallotService() {
 		final String keyValue = System
@@ -59,6 +63,20 @@ public class BallotService {
 				BALLOT_BOX_ID_ENCRYPTION_ALGORITHM));
 
 		return cipher;
+	}
+
+	public void convertTalliesToKarma() {
+		Collection<BallotBoxPersistedTally> allTallies = BallotAccessService
+				.getInstance().getAllTallies();
+
+		for (BallotBoxPersistedTally tally : allTallies) {
+			if (tally.getAdviceKarmaBalance() == 0) {
+				tally.syncAdviceNumbers();
+				BallotAccessService.getInstance().storeTally(tally);
+
+				LOG.info("Fixing karma for tally #" + tally.getId());
+			}
+		}
 	}
 
 	public String decryptBallotId(final String ballotBoxId) {
@@ -136,7 +154,6 @@ public class BallotService {
 		return RegionAccessService.getInstance().getNumberOfVotingStations(
 				region);
 	}
-
 	private Region getRandomBallotRegion() {
 		Region randomVillage = null;
 
@@ -156,9 +173,6 @@ public class BallotService {
 		return getRandomSubregionAtLevel(region, regionLevel);
 	}
 
-	private static final int MAX_REROLL = 3;
-	private static final double REVERIFY_CHANCE_PERCENTAGE = 50;
-
 	public BallotBoxResult getRandomResultForUser(final String userId) {
 
 		Region randomBallotRegion = null;
@@ -174,7 +188,7 @@ public class BallotService {
 						.getRandomTallyForReverify();
 				attempt++;
 			} while (randomTally.containsUser(userId) && attempt < MAX_REROLL);
-			
+
 			// if random tally still contains user, dump it
 			if (randomTally.containsUser(userId)) {
 				randomTally = null;
@@ -247,7 +261,33 @@ public class BallotService {
 	}
 
 	private int getTotalProcessedCount() {
-		return ofy().load().type(BallotBoxPersistedTally.class).count();
+		final int singleAdviceTallyCount = ofy().load()
+				.type(BallotBoxPersistedTally.class)
+				.filter("numberOfAdvices", 1).count();
+
+		final int doubleAdviceTallyCount = ofy().load()
+				.type(BallotBoxPersistedTally.class)
+				.filter("numberOfAdvices", 2).count();
+
+		final int tripleAdviceTallyCount = ofy().load()
+				.type(BallotBoxPersistedTally.class)
+				.filter("numberOfAdvices", 3).count();
+
+		final int quadrupleAdviceTallyCount = ofy().load()
+				.type(BallotBoxPersistedTally.class)
+				.filter("numberOfAdvices", 4).count();
+
+		final int manyAdviceTallyCount = ofy().load()
+				.type(BallotBoxPersistedTally.class)
+				.filter("numberOfAdvices >", 4).count();
+
+		int totalCount = singleAdviceTallyCount;
+		totalCount += doubleAdviceTallyCount * 2;
+		totalCount += tripleAdviceTallyCount * 3;
+		totalCount += quadrupleAdviceTallyCount * 4;
+		totalCount += manyAdviceTallyCount * 4;
+
+		return totalCount;
 	}
 
 	private int getTotalSuspectedNegativeCount() {
@@ -257,7 +297,9 @@ public class BallotService {
 
 	private int getTotalVerifiedNegativeCount() {
 		return ofy().load().type(BallotBoxPersistedTally.class)
-				.filter("adviceKarmaBalance <", -2).count();
+				.filter("adviceKarmaBalance <", -1).count(); // TODO: Set to -2
+																// once we have
+																// more data
 	}
 
 	private boolean mergeUserInputToTally(final String userId,
@@ -291,20 +333,6 @@ public class BallotService {
 
 		if (isChanged) {
 			BallotAccessService.getInstance().storeTally(tally);
-		}
-	}
-
-	public void convertTalliesToKarma() {
-		Collection<BallotBoxPersistedTally> allTallies = BallotAccessService
-				.getInstance().getAllTallies();
-
-		for (BallotBoxPersistedTally tally : allTallies) {
-			if (tally.getAdviceKarmaBalance() == 0) {
-				tally.syncAdviceNumbers();
-				BallotAccessService.getInstance().storeTally(tally);
-
-				LOG.info("Fixing karma for tally #" + tally.getId());
-			}
 		}
 	}
 }
