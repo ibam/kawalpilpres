@@ -65,7 +65,7 @@ public class RegionDatastoreAccessService {
 		return persistedRegions;
 	}
 
-	private Region toRegion(final PersistedRegion persistedRegion) {
+	public Region toRegion(final PersistedRegion persistedRegion) {
 		final Region region = new Region();
 		region.setId(persistedRegion.getId());
 		region.setLevel(persistedRegion.getLevel());

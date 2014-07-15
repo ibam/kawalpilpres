@@ -89,6 +89,6 @@ public class Region implements Serializable {
 
 	@Override
 	public String toString() {
-		return "[Region #" + getId() + ", " + getName() + "]";
+		return "[Region #" + getId() + ", " + getName() + ", " + getLevel() + "]";
 	}
 }

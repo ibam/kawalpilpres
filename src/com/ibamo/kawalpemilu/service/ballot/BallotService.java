@@ -13,7 +13,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Ints;
 import com.ibamo.kawalpemilu.framework.exceptions.InvalidServerConfiguration;
 import com.ibamo.kawalpemilu.framework.exceptions.InvalidServerConfiguration.ConfigType;
 import com.ibamo.kawalpemilu.model.kawalpemilu.BallotAccessor;
@@ -27,7 +29,7 @@ import com.ibamo.kawalpemilu.model.kpu.Region;
 import com.ibamo.kawalpemilu.model.kpu.RegionLevel;
 import com.ibamo.kawalpemilu.service.region.RegionAccessService;
 
-public class BallotService implements BallotAccessor {
+public class BallotService {
 	private static class SingletonHolder {
 		private static final BallotService INSTANCE = new BallotService();
 	}
@@ -106,7 +108,8 @@ public class BallotService implements BallotAccessor {
 			final int votingStationNumber) {
 		if (region.getLevel() != RegionLevel.VILLAGE) {
 			throw new IllegalArgumentException(
-					"Can only fetch ballot box result from a village-level region.");
+					"Can only fetch ballot box result from a village-level region. Region is "
+							+ region + ".");
 		}
 
 		final BallotBoxResult result = new BallotBoxResult(region,
@@ -153,10 +156,61 @@ public class BallotService implements BallotAccessor {
 		return getRandomSubregionAtLevel(region, regionLevel);
 	}
 
-	@Override
-	public BallotBoxResult getRandomResult() {
-		final Region randomBallotRegion = getRandomBallotRegion();
-		final int randomVotingStationNumber = getRandomVotingStationNumber(randomBallotRegion);
+	private static final int MAX_REROLL = 3;
+	private static final double REVERIFY_CHANCE_PERCENTAGE = 50;
+
+	public BallotBoxResult getRandomResultForUser(final String userId) {
+
+		Region randomBallotRegion = null;
+		int randomVotingStationNumber = 1;
+
+		final double diceRoll = ThreadLocalRandom.current().nextDouble(100);
+		BallotBoxPersistedTally randomTally = null;
+
+		if (diceRoll < REVERIFY_CHANCE_PERCENTAGE) {
+			int attempt = 0;
+			do {
+				randomTally = BallotAccessService.getInstance()
+						.getRandomTallyForReverify();
+				attempt++;
+			} while (randomTally.containsUser(userId) && attempt < MAX_REROLL);
+			
+			// if random tally still contains user, dump it
+			if (randomTally.containsUser(userId)) {
+				randomTally = null;
+			}
+		}
+
+		if (randomTally != null) {
+			LOG.info("Picking up tally #" + randomTally.getId()
+					+ " with karma " + randomTally.getAdviceKarmaBalance()
+					+ " for reverification.");
+
+			final String tallyId = randomTally.getId();
+			final List<String> splittedId = Splitter.on(
+					BallotBoxResult.idSeparator).splitToList(tallyId);
+
+			if (splittedId.size() == 2
+					&& Ints.tryParse(splittedId.get(1)) != null) {
+
+				randomBallotRegion = new Region();
+				randomBallotRegion.setId(splittedId.get(0));
+				randomBallotRegion.setLevel(RegionLevel.VILLAGE);
+				randomVotingStationNumber = Integer.parseInt(splittedId.get(1));
+			} else {
+				LOG.warning("Tally ID ["
+						+ tallyId
+						+ "] cannot be split into proper ballot and voting number. Falling back to random picking.");
+			}
+		}
+
+		// fallback
+		if (randomBallotRegion == null) {
+			LOG.info("Picking up random region for verification.");
+
+			randomBallotRegion = getRandomBallotRegion();
+			randomVotingStationNumber = getRandomVotingStationNumber(randomBallotRegion);
+		}
 
 		return getBallotBoxResult(randomBallotRegion, randomVotingStationNumber);
 	}

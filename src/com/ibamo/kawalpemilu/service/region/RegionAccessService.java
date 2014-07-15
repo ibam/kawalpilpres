@@ -141,6 +141,28 @@ public class RegionAccessService {
 		return region.getNumberOfVotingStations();
 	}
 
+	public Region getRegion(final String regionId) {
+		final Region region = new Region();
+		region.setId(regionId);
+		return getRegion(region);
+	}
+	
+	public Region getRegion(final Region region) {
+		try {
+			final PersistedRegion persistedRegion = getCacheBackedRegionAccessor()
+					.get(region);
+			
+			if (persistedRegion == null) {
+				return null;
+			}
+
+			return RegionDatastoreAccessService.getInstance().toRegion(
+					persistedRegion);
+		} catch (ExecutionException ex) {
+			throw new RegionNotFoundException(region.getId());
+		}
+	}
+
 	public List<Region> getSubregions(final Region region) {
 		try {
 			final PersistedRegion persistedRegion = getCacheBackedRegionAccessor()

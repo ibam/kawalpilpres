@@ -25,7 +25,7 @@ import com.ibamo.kawalpemilu.service.SecurityService;
 import com.ibamo.kawalpemilu.service.ballot.BallotService;
 
 @Path("/ballots")
-public class BallotResource implements BallotAccessor {
+public class BallotResource {
 
 	private static Logger LOG = Logger
 			.getLogger(BallotResource.class.getName());
@@ -48,7 +48,7 @@ public class BallotResource implements BallotAccessor {
 
 		return cookieUserId;
 	}
-	
+
 	private String extractUserId(final HttpServletRequest httpRequest) {
 		Cookie[] requestCookies = httpRequest.getCookies();
 		if (requestCookies == null) {
@@ -92,12 +92,12 @@ public class BallotResource implements BallotAccessor {
 
 		return BallotService.getInstance().getTally(ballotId);
 	}
-	
-//	@GET
-//	@Path("/convert")
-//	public void convertTallies() {
-//		BallotService.getInstance().convertTalliesToKarma();
-//	}
+
+	@GET
+	@Path("/convert")
+	public void convertTallies() {
+		BallotService.getInstance().convertTalliesToKarma();
+	}
 
 	@GET
 	@Path("/stats")
@@ -112,7 +112,7 @@ public class BallotResource implements BallotAccessor {
 	public BallotBoxResult getRandomResult() {
 		final String userId = ensureUserIdExist(contextRequest, contextResponse);
 		final BallotBoxResult result = BallotService.getInstance()
-				.getRandomResult();
+				.getRandomResultForUser(userId);
 
 		final String nonce = SecurityService.getInstance()
 				.generateNonceForResult(result, userId);

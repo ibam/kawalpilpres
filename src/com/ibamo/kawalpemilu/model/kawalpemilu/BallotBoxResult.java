@@ -4,7 +4,7 @@ import com.ibamo.kawalpemilu.model.kpu.Region;
 
 public class BallotBoxResult {
 	private static final String imageUrlTemplate = "http://scanc1.kpu.go.id/viewp.php?f=";
-	private static final char idSeparator = '-';
+	public static final char idSeparator = '-';
 
 	private String id;
 	private String regionId;

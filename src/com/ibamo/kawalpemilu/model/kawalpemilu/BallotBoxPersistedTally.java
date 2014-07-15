@@ -43,6 +43,17 @@ public class BallotBoxPersistedTally {
 		syncAdviceNumbers();
 	}
 
+	public boolean containsUser(final String userId) {
+
+		for (BallotBoxPersistedAdvice advice : getAdvices()) {
+			if (advice.getAdvisorUserId().equals(userId)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public boolean containsUserAdvice(final String userId,
 			final AdviceType adviceType) {
 
